@@ -1,0 +1,7 @@
+# Archivos fuente originales (NO subir al repo público)
+main.js
+styles.css
+index.html
+
+# Solo subir la carpeta docs/ con el código ofuscado
+!docs/
