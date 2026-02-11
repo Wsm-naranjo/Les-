@@ -1,0 +1,295 @@
+/* ==========================================================================
+   ESTILOS PRINCIPALES - Experiencia Visual Romántica
+   ==========================================================================
+   Paleta: Gama completa de rosados sobre fondo oscuro.
+   Tipografía: Outfit (moderna) + Dancing Script (romántica cursiva).
+   ========================================================================== */
+
+/* --- Variables CSS (Design Tokens) --- */
+:root {
+    --bg-dark: #080510;
+    --bg-dark-alt: #0c0818;
+    --rose-deep: #e91e63;
+    --rose-hot: #ff1f6e;
+    --rose-bright: #ff4d8a;
+    --rose-medium: #ff6b9d;
+    --rose-soft: #ff8ab5;
+    --rose-light: #ffb3cc;
+    --rose-pale: #ffd6e7;
+    --rose-glow: rgba(255, 77, 138, 0.5);
+    --rose-glow-soft: rgba(255, 107, 157, 0.3);
+    --magenta: #d946a8;
+    --magenta-soft: rgba(217, 70, 168, 0.4);
+    --blush: #f9a8d4;
+    --text-white: #fff0f5;
+    --text-white-soft: rgba(255, 240, 245, 0.75);
+    --font-main: 'Outfit', sans-serif;
+    --font-romantic: 'Dancing Script', cursive;
+    --transition-smooth: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* --- Reset y base --- */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-dark);
+    font-family: var(--font-main);
+    color: var(--text-white);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Canvas de partículas --- */
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: block;
+}
+
+/* ==========================================================================
+   ESCENA 2 - Botón "Iniciar"
+   ========================================================================== */
+#startOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    transition: opacity var(--transition-smooth);
+}
+
+#startOverlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#startBtn {
+    position: relative;
+    padding: 20px 70px;
+    font-family: var(--font-romantic);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-white);
+    background: linear-gradient(135deg, var(--rose-hot) 0%, var(--magenta) 50%, var(--rose-deep) 100%);
+    border: 2px solid rgba(255, 179, 204, 0.2);
+    border-radius: 50px;
+    cursor: pointer;
+    outline: none;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 0 30px var(--rose-glow),
+        0 0 60px var(--rose-glow-soft),
+        0 0 100px rgba(255, 31, 110, 0.15),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    z-index: 11;
+}
+
+#startBtn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center,
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 70%);
+    animation: btnShimmer 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes btnShimmer {
+
+    0%,
+    100% {
+        transform: translate(-30%, -30%);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: translate(30%, 30%);
+        opacity: 1;
+    }
+}
+
+#startBtn:hover {
+    transform: scale(1.1);
+    box-shadow:
+        0 0 50px var(--rose-glow),
+        0 0 100px var(--rose-glow-soft),
+        0 0 150px rgba(255, 31, 110, 0.2),
+        inset 0 0 30px rgba(255, 255, 255, 0.08);
+}
+
+#startBtn:active {
+    transform: scale(0.96);
+}
+
+/* ==========================================================================
+   ESCENA 4 - Galaxia Interactiva
+   ========================================================================== */
+#galaxyContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: all;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+
+#galaxyContainer.visible {
+    opacity: 1;
+}
+
+#galaxyContainer.hidden {
+    display: none;
+}
+
+#galaxyContainer.grabbing {
+    cursor: grabbing;
+}
+
+/* Palabras flotantes dentro de la galaxia */
+.galaxy-word {
+    position: absolute;
+    font-family: var(--font-romantic);
+    color: var(--rose-light);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 1.2s ease;
+    text-shadow:
+        0 0 10px var(--rose-glow),
+        0 0 25px var(--rose-glow-soft);
+}
+
+.galaxy-word.visible {
+    opacity: 1;
+}
+
+/* Núcleo brillante central de la galaxia */
+.galaxy-core {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle,
+            rgba(255, 77, 138, 0.25) 0%,
+            rgba(217, 70, 168, 0.12) 30%,
+            rgba(255, 31, 110, 0.05) 55%,
+            transparent 75%);
+    filter: blur(40px);
+    pointer-events: none;
+    animation: coreGlow 5s ease-in-out infinite alternate;
+}
+
+.galaxy-core-inner {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle,
+            rgba(255, 179, 204, 0.5) 0%,
+            rgba(255, 77, 138, 0.2) 50%,
+            transparent 80%);
+    filter: blur(15px);
+    pointer-events: none;
+    animation: coreGlow 3s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes coreGlow {
+    0% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(0.85);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+/* Controles de navegación de la galaxia */
+.galaxy-nav-hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    color: var(--rose-soft);
+    opacity: 0;
+    transition: opacity 2s ease;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 0 10px var(--rose-glow-soft);
+    letter-spacing: 1px;
+}
+
+.galaxy-nav-hint.visible {
+    opacity: 0.7;
+}
+
+.galaxy-nav-hint .icon {
+    display: inline-block;
+    animation: floatUpDown 2s ease-in-out infinite;
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+@keyframes floatUpDown {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+/* ==========================================================================
+   Utilidades y responsive
+   ========================================================================== */
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    #startBtn {
+        padding: 16px 50px;
+        font-size: 1.4rem;
+    }
+}
